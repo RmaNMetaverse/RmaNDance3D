@@ -5,5 +5,18 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    emptyOutDir: true,
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ['three']
+        }
+      }
+    }
   },
+  server: {
+    port: 3000,
+    open: true
+  }
 }); 

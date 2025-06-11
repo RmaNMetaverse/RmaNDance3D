@@ -64,7 +64,7 @@ class DanceApp {
     
     try {
       // Load idle animation
-      const idleModel = await loader.loadAsync('./Assets/RmaNIdle.glb');
+      const idleModel = await loader.loadAsync('./assets/RmaNIdle.glb');
       const model = idleModel.scene;
       this.scene.add(model);
 
@@ -82,7 +82,7 @@ class DanceApp {
 
     const loader = new GLTFLoader();
     try {
-      const danceModel = await loader.loadAsync(`./Assets/RmaNDance${danceNumber}.glb`);
+      const danceModel = await loader.loadAsync(`./assets/RmaNDance${danceNumber}.glb`);
       
       // Stop current animation
       if (this.currentAnimation) {
@@ -103,12 +103,9 @@ class DanceApp {
         if (this.idleAnimation) {
           this.idleAnimation.play();
         }
-        if (this.currentAnimation) {
-          this.currentAnimation.removeEventListener('finished', onAnimationFinished);
-        }
       };
 
-      // Add the event listener
+      // Add the event listener using type assertion
       if (this.currentAnimation) {
         (this.currentAnimation as any).addEventListener('finished', onAnimationFinished);
       }
