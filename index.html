@@ -4,14 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RmaN Dance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <canvas id="canvas"></canvas>
     <div class="button-container">
-      <button class="dance-button" data-dance="1">Dance 1</button>
-      <button class="dance-button" data-dance="2">Dance 2</button>
-      <button class="dance-button" data-dance="3">Dance 3</button>
+      <div style="display: flex; justify-content: center; gap: 10px;">
+        <button class="dance-button" data-dance="idle">Idle</button>
+        <button class="dance-button" data-dance="1">Dance 1</button>
+        <button class="dance-button" data-dance="2">Dance 2</button>
+        <button class="dance-button" data-dance="3">Dance 3</button>
+      </div>
+      <div style="width: 100%; display: flex; justify-content: center; margin-top: 10px;">
+        <div class="alert alert-info" role="alert" style="display: none; width: fit-content;">
+          Animation status will appear here
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

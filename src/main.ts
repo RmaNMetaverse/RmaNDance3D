@@ -11,6 +11,7 @@ class DanceApp {
   private currentAnimation: THREE.AnimationAction | null = null;
   private idleAnimation: THREE.AnimationAction | null = null;
   private clock: THREE.Clock;
+  private alertElement: HTMLElement;
 
   constructor() {
     console.log('Initializing DanceApp...');
@@ -43,6 +44,9 @@ class DanceApp {
     // Initialize clock for animations
     this.clock = new THREE.Clock();
 
+    // Get alert element
+    this.alertElement = document.querySelector('.alert') as HTMLElement;
+
     // Add lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     this.scene.add(ambientLight);
@@ -61,6 +65,18 @@ class DanceApp {
     window.addEventListener('resize', () => this.onWindowResize());
   }
 
+  private showAlert(message: string, type: string = 'info') {
+    this.alertElement.textContent = message;
+    this.alertElement.className = `alert alert-${type} mb-3`;
+    this.alertElement.style.display = 'block';
+    this.alertElement.style.width = 'fit-content';
+    this.alertElement.style.marginLeft = 'auto';
+    this.alertElement.style.marginRight = 'auto';
+    setTimeout(() => {
+      this.alertElement.style.display = 'none';
+    }, 3000);
+  }
+
   private async loadModel() {
     const loader = new GLTFLoader();
     const modelPath = './assets/RmaNIdle.glb';
@@ -68,18 +84,18 @@ class DanceApp {
     
     try {
       // Load idle animation
-      const idleModel = await loader.loadAsync(modelPath);
-      console.log('Model loaded successfully:', idleModel);
+      const gltf = await loader.loadAsync(modelPath);
+      console.log('Model loaded successfully:', gltf);
       
-      const model = idleModel.scene;
-      this.scene.add(model);
+      this.scene.add(gltf.scene);
       console.log('Model added to scene');
 
       // Setup animation mixer
-      this.mixer = new THREE.AnimationMixer(model);
-      this.idleAnimation = this.mixer.clipAction(idleModel.animations[0]);
+      this.mixer = new THREE.AnimationMixer(gltf.scene);
+      this.idleAnimation = this.mixer.clipAction(gltf.animations[0]);
       this.idleAnimation.play();
       console.log('Idle animation started');
+      this.showAlert('Idle animation loaded successfully', 'success');
     } catch (error: any) {
       console.error('Error loading model:', error);
       console.error('Full error details:', {
@@ -87,12 +103,26 @@ class DanceApp {
         stack: error?.stack || 'No stack trace',
         name: error?.name || 'Unknown error type'
       });
+      this.showAlert('Error loading model', 'danger');
     }
   }
 
-  private async playDanceAnimation(danceNumber: number) {
+  private async playDanceAnimation(danceNumber: string) {
     if (!this.mixer) {
       console.error('Mixer not initialized');
+      this.showAlert('Animation system not initialized', 'danger');
+      return;
+    }
+
+    // Handle idle animation
+    if (danceNumber === 'idle') {
+      if (this.currentAnimation) {
+        this.currentAnimation.stop();
+      }
+      if (this.idleAnimation) {
+        this.idleAnimation.play();
+        this.showAlert('Playing idle animation', 'success');
+      }
       return;
     }
 
@@ -101,8 +131,8 @@ class DanceApp {
     console.log('Attempting to load dance animation from:', dancePath);
     
     try {
-      const danceModel = await loader.loadAsync(dancePath);
-      console.log('Dance model loaded successfully:', danceModel);
+      const gltf = await loader.loadAsync(dancePath);
+      console.log('Dance model loaded successfully:', gltf);
       
       // Stop current animation
       if (this.currentAnimation) {
@@ -110,27 +140,27 @@ class DanceApp {
       }
 
       // Play new dance animation
-      this.currentAnimation = this.mixer.clipAction(danceModel.animations[0]);
+      this.currentAnimation = this.mixer.clipAction(gltf.animations[0]);
       this.currentAnimation.play();
       console.log('Dance animation started');
+      this.showAlert(`Dance ${danceNumber} started`, 'success');
 
       // When dance animation finishes, return to idle
       this.currentAnimation.clampWhenFinished = true;
       this.currentAnimation.loop = THREE.LoopOnce;
       this.currentAnimation.reset();
 
-      // Set up animation completion callback
+      // Set up animation completion callback using the mixer's event system
       const onAnimationFinished = () => {
         console.log('Dance animation finished, returning to idle');
         if (this.idleAnimation) {
           this.idleAnimation.play();
         }
+        this.showAlert('Returning to idle animation', 'info');
       };
 
-      // Add the event listener using type assertion
-      if (this.currentAnimation) {
-        (this.currentAnimation as any).addEventListener('finished', onAnimationFinished);
-      }
+      // Add the event listener to the mixer instead of the animation
+      this.mixer.addEventListener('finished', onAnimationFinished);
     } catch (error: any) {
       console.error(`Error loading dance animation ${danceNumber}:`, error);
       console.error('Full error details:', {
@@ -138,6 +168,7 @@ class DanceApp {
         stack: error?.stack || 'No stack trace',
         name: error?.name || 'Unknown error type'
       });
+      this.showAlert(`Error loading dance ${danceNumber}`, 'danger');
     }
   }
 
@@ -148,7 +179,7 @@ class DanceApp {
         const danceNumber = (e.target as HTMLElement).getAttribute('data-dance');
         if (danceNumber) {
           console.log('Dance button clicked:', danceNumber);
-          this.playDanceAnimation(parseInt(danceNumber));
+          this.playDanceAnimation(danceNumber);
         }
       });
     });
