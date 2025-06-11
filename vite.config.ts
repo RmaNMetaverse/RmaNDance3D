@@ -6,4 +6,5 @@ export default defineConfig({
     outDir: 'docs',
     assetsDir: 'assets',
   },
+  publicDir: 'Assets', // This will copy the Assets directory to the build output
 }); 
