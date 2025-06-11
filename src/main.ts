@@ -13,6 +13,7 @@ class DanceApp {
   private clock: THREE.Clock;
 
   constructor() {
+    console.log('Initializing DanceApp...');
     // Initialize scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x1a1a1a);
@@ -50,6 +51,7 @@ class DanceApp {
     directionalLight.position.set(5, 5, 5);
     this.scene.add(directionalLight);
 
+    console.log('Scene setup complete, loading model...');
     // Load initial model and setup event listeners
     this.loadModel();
     this.setupEventListeners();
@@ -61,28 +63,46 @@ class DanceApp {
 
   private async loadModel() {
     const loader = new GLTFLoader();
+    const modelPath = './assets/RmaNIdle.glb';
+    console.log('Attempting to load model from:', modelPath);
     
     try {
       // Load idle animation
-      const idleModel = await loader.loadAsync('./assets/RmaNIdle.glb');
+      const idleModel = await loader.loadAsync(modelPath);
+      console.log('Model loaded successfully:', idleModel);
+      
       const model = idleModel.scene;
       this.scene.add(model);
+      console.log('Model added to scene');
 
       // Setup animation mixer
       this.mixer = new THREE.AnimationMixer(model);
       this.idleAnimation = this.mixer.clipAction(idleModel.animations[0]);
       this.idleAnimation.play();
-    } catch (error) {
+      console.log('Idle animation started');
+    } catch (error: any) {
       console.error('Error loading model:', error);
+      console.error('Full error details:', {
+        message: error?.message || 'Unknown error',
+        stack: error?.stack || 'No stack trace',
+        name: error?.name || 'Unknown error type'
+      });
     }
   }
 
   private async playDanceAnimation(danceNumber: number) {
-    if (!this.mixer) return;
+    if (!this.mixer) {
+      console.error('Mixer not initialized');
+      return;
+    }
 
     const loader = new GLTFLoader();
+    const dancePath = `./assets/RmaNDance${danceNumber}.glb`;
+    console.log('Attempting to load dance animation from:', dancePath);
+    
     try {
-      const danceModel = await loader.loadAsync(`./assets/RmaNDance${danceNumber}.glb`);
+      const danceModel = await loader.loadAsync(dancePath);
+      console.log('Dance model loaded successfully:', danceModel);
       
       // Stop current animation
       if (this.currentAnimation) {
@@ -92,6 +112,7 @@ class DanceApp {
       // Play new dance animation
       this.currentAnimation = this.mixer.clipAction(danceModel.animations[0]);
       this.currentAnimation.play();
+      console.log('Dance animation started');
 
       // When dance animation finishes, return to idle
       this.currentAnimation.clampWhenFinished = true;
@@ -100,6 +121,7 @@ class DanceApp {
 
       // Set up animation completion callback
       const onAnimationFinished = () => {
+        console.log('Dance animation finished, returning to idle');
         if (this.idleAnimation) {
           this.idleAnimation.play();
         }
@@ -109,8 +131,13 @@ class DanceApp {
       if (this.currentAnimation) {
         (this.currentAnimation as any).addEventListener('finished', onAnimationFinished);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error loading dance animation ${danceNumber}:`, error);
+      console.error('Full error details:', {
+        message: error?.message || 'Unknown error',
+        stack: error?.stack || 'No stack trace',
+        name: error?.name || 'Unknown error type'
+      });
     }
   }
 
@@ -120,6 +147,7 @@ class DanceApp {
       button.addEventListener('click', (e) => {
         const danceNumber = (e.target as HTMLElement).getAttribute('data-dance');
         if (danceNumber) {
+          console.log('Dance button clicked:', danceNumber);
           this.playDanceAnimation(parseInt(danceNumber));
         }
       });
@@ -146,4 +174,5 @@ class DanceApp {
 }
 
 // Initialize the app
+console.log('Starting application...');
 new DanceApp(); 
