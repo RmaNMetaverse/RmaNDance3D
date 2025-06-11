@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RmaN Dance</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      #canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .button-container {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+        z-index: 1000;
+      }
+      .dance-button {
+        padding: 12px 24px;
+        border-radius: 25px;
+        border: none;
+        background-color: rgba(255, 255, 255, 0.8);
+        color: #333;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .dance-button:hover {
+        background-color: rgba(255, 255, 255, 1);
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div class="button-container">
+      <button class="dance-button" data-dance="1">Dance 1</button>
+      <button class="dance-button" data-dance="2">Dance 2</button>
+      <button class="dance-button" data-dance="3">Dance 3</button>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html> 
